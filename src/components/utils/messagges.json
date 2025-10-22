@@ -1,0 +1,23 @@
+{
+    "common": {
+        "login": {
+            "success": "¡Bienvenido!",
+            "error": "Error al iniciar sesión. Intenta nuevamente.",
+            "invalid": "Credenciales incorrectas. Intenta nuevamente."
+        },
+        "register": {
+            "success": "Registro exitoso.",
+            "error": "Error al registrar."
+        },
+        "general": {
+            "loading": "Cargando data...",
+            "required": "Este campo es obligatorio",
+            "notFound": "No se encontro nada",
+            "put": "Actualizado exitosamente",
+            "errPut": "Error al actualizar"
+        }
+    },
+    "owner": {},
+    "admin": {},
+    "customer": {}
+}
