@@ -46,9 +46,18 @@ export default function FilterDrawer({
           options={sites}
           disableCloseOnSelect
           value={selectedSites}
-          onChange={(event, newValue) => onSelect(newValue)} // ✅ actualiza el estado del padre
-          getOptionLabel={(option) => option.company_name || ""}
-          isOptionEqualToValue={(option, value) => option.id === value.id} // ✅ evita duplicados y errores
+          onChange={(event, newValue) => onSelect(newValue)}
+          getOptionLabel={(option) =>
+            `${option.company_name || ""} - ${option.site_name || ""}`
+          }
+          filterOptions={(options, { inputValue }) =>
+            options.filter(
+              (opt) =>
+                opt.company_name?.toLowerCase().includes(inputValue.toLowerCase()) ||
+                opt.site_name?.toLowerCase().includes(inputValue.toLowerCase())
+            )
+          }
+          isOptionEqualToValue={(option, value) => option.id === value.id}
           renderOption={(props, option, { selected }) => (
             <li {...props} key={option.id}>
               <Checkbox
@@ -57,18 +66,26 @@ export default function FilterDrawer({
                 style={{ marginRight: 8 }}
                 checked={selected}
               />
-              {option.company_name}
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                  {option.company_name}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {option.site_name}
+                </Typography>
+              </Box>
             </li>
           )}
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Buscar granja"
-              placeholder="Ej. Omarsa"
+              label="Buscar granja o sitio"
+              placeholder="Ej. Omarsa o Haraute"
               variant="outlined"
             />
           )}
         />
+
       </Box>
     </Drawer>
   );

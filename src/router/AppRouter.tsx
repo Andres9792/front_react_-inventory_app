@@ -4,22 +4,37 @@ import Dashboard from "../pages/Dashboard/Dashboard";
 import Sites from "../pages/Sites/Sites";
 import { Feeders, Ubicacion } from "../pages";
 import Proxmox from "../pages/Proxmox/Proxmox";
+import  Login from "../pages/auth/Login"; // 👈 tu página de login
+import PrivateRoute from "./PrivateRoute"; // 👈 la protección
+import { AuthProvider } from "../context/AuthContext"; // 👈 el contexto
 
 function AppRouter() {
   return (
-    <Router>
-      <Routes>
-        {/* Rutas protegidas que usan el Layout */}
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} /> {/* / */}
-          <Route path="dashboard" element={<Dashboard />} /> {/* /dashboard */}
-          <Route path="sites" element={<Sites />} /> {/* /sites */}
-          <Route path="proxmoxs" element={<Proxmox />} /> {/* /sites */}
-          <Route path="ubicaciones" element={<Ubicacion />} /> {/* /sites */}
-          <Route path="feeders" element={<Feeders />} /> {/* /sites */}
-        </Route>
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/*  Ruta pública */}
+          <Route path="/login" element={<Login />} />
+
+          {/*  Rutas protegidas */}
+          <Route
+            path="/"
+            element={
+              <PrivateRoute>
+                <Layout />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="sites" element={<Sites />} />
+            <Route path="proxmoxs" element={<Proxmox />} />
+            <Route path="ubicaciones" element={<Ubicacion />} />
+            <Route path="feeders" element={<Feeders />} />
+          </Route>
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

@@ -68,7 +68,7 @@ export default function Ubicacion() {
           <IconButton onClick={() => setOpen(true)}>
             <FilterListIcon />
           </IconButton>
-          <Typography variant="h6">Ubicación de Grupos</Typography>
+          <Typography variant="h6">---</Typography>
         </Box>
 
         <FilterDrawer
