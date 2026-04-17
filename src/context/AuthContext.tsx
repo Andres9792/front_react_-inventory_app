@@ -1,37 +1,53 @@
-import React, { createContext, useState,  } from "react";
+import React, { createContext, useState } from "react";
 import type { ReactNode, FC } from "react";
 import type { LoginResponse } from "../models/auth";
 
 interface AuthContextType {
-  user: LoginResponse | null;
+  user: {
+    username: string;
+    email: string;
+    groups: string[];
+  } | null;
   login: (userData: LoginResponse) => void;
   logout: () => void;
 }
 
-// 🔹 Creamos el contexto (valor inicial undefined)
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// 🔹 Definimos el proveedor
 export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<LoginResponse | null>(
-    JSON.parse(localStorage.getItem("user") || "null")
-  );
+  // 🔹 Restaurar usuario (SIN tokens)
+  const [user, setUser] = useState<AuthContextType["user"]>(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
   const login = (userData: LoginResponse) => {
-    setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
+    // 1) Guardar tokens (para httpClient)
+    localStorage.setItem("access", userData.access);
+    localStorage.setItem("refresh", userData.refresh);
+
+    // 2) Guardar SOLO info del usuario (para UI)
+    const userInfo = {
+      username: userData.username,
+      email: userData.email,
+      groups: userData.groups,
+    };
+
+    localStorage.setItem("user", JSON.stringify(userInfo));
+    setUser(userInfo);
   };
 
   const logout = () => {
-    setUser(null);
+    // 🔥 Limpiar TODO
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
     localStorage.removeItem("user");
+    setUser(null);
   };
 
-  // 👇 ESTA ES LA LÍNEA QUE FALTABA
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
-

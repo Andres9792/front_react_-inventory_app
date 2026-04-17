@@ -185,6 +185,7 @@ export default function SF200Viewer({ data }: { data?: SF200Response }) {
             <tr>
               {[
                 ["Name", "Name"],
+                ["Serial", "Serial"],
                 ["Model", "Model"],
                 ["Battery_V", "Battery (V)"],
                 ["FW", "FW"],
@@ -200,9 +201,7 @@ export default function SF200Viewer({ data }: { data?: SF200Response }) {
                   onClick={() => toggleSort(key as keyof SF200Device)}
                   style={{
                     textAlign:
-                      key === "Battery_V" ||
-                      key === "RSSI" ||
-                      key === "Kg_Fed"
+                      key === "Battery_V" || key === "RSSI" || key === "Kg_Fed"
                         ? "right"
                         : "left",
                     padding: "8px 10px",
@@ -224,13 +223,18 @@ export default function SF200Viewer({ data }: { data?: SF200Response }) {
             {pageData.map((d) => (
               <tr key={d.Serial} style={{ borderBottom: "1px solid #f0f0f0" }}>
                 <td style={td}>{fmt(d.Name)}</td>
+                <td style={td}>{fmt(d.Serial)}</td>
                 <td style={td}>{fmt(d.Model)}</td>
-                <td style={{ ...td, textAlign: "right" }}>{fmt(d.Battery_V)}</td>
+                <td style={{ ...td, textAlign: "right" }}>
+                  {fmt(d.Battery_V)}
+                </td>
                 <td style={td}>{fmt(d.FW)}</td>
                 <td style={{ ...td, textAlign: "right" }}>{fmt(d.RSSI)}</td>
                 <td style={{ ...td, textAlign: "right" }}>{fmt(d.Kg_Fed)}</td>
                 <td style={{ ...td, textAlign: "right" }}>{fmt(d.Latitude)}</td>
-                <td style={{ ...td, textAlign: "right" }}>{fmt(d.Longitude)}</td>
+                <td style={{ ...td, textAlign: "right" }}>
+                  {fmt(d.Longitude)}
+                </td>
                 <td style={td}>{fmtTime(d.Last_Heard)}</td>
                 <td style={td}>{fmt(d.Type)}</td>
               </tr>

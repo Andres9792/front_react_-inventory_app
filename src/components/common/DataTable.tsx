@@ -10,38 +10,50 @@ import {
   TablePagination,
 } from "@mui/material";
 
-interface Column {
-  id: string;
+type Align = "right" | "left" | "center";
+
+interface Column<T extends Record<string, unknown>> {
+  id: keyof T;
   label: string;
   minWidth?: number;
-  align?: "right" | "left" | "center";
-  format?: (value: any) => string;
+  align?: Align;
+  format?: (value: T[keyof T], row: T) => React.ReactNode;
 }
 
-interface DataTableProps {
-  columns: Column[];
-  rows: any[];
+interface DataTableProps<T extends Record<string, unknown>> {
+  columns: Column<T>[];
+  rows: T[];
   page: number;
   rowsPerPage: number;
   onPageChange: (event: unknown, newPage: number) => void;
   onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const DataTable: React.FC<DataTableProps> = ({
-  columns, rows, page, rowsPerPage, onPageChange, onRowsPerPageChange
-}) => (
+export const DataTable = <T extends Record<string, unknown>,>({
+  columns,
+  rows,
+  page,
+  rowsPerPage,
+  onPageChange,
+  onRowsPerPageChange,
+}: DataTableProps<T>) => (
   <Paper sx={{ width: "100%", overflow: "hidden" }}>
     <TableContainer sx={{ maxHeight: 440 }}>
       <Table stickyHeader>
         <TableHead>
           <TableRow>
             {columns.map((col) => (
-              <TableCell key={col.id} align={col.align} style={{ minWidth: col.minWidth }}>
+              <TableCell
+                key={String(col.id)}
+                align={col.align}
+                style={{ minWidth: col.minWidth }}
+              >
                 {col.label}
               </TableCell>
             ))}
           </TableRow>
         </TableHead>
+
         <TableBody>
           {rows
             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
@@ -49,9 +61,10 @@ export const DataTable: React.FC<DataTableProps> = ({
               <TableRow hover key={index}>
                 {columns.map((col) => {
                   const value = row[col.id];
+
                   return (
-                    <TableCell key={col.id} align={col.align}>
-                      {col.format ? col.format(value) : value}
+                    <TableCell key={String(col.id)} align={col.align}>
+                      {col.format ? col.format(value, row) : String(value ?? "")}
                     </TableCell>
                   );
                 })}
@@ -60,6 +73,7 @@ export const DataTable: React.FC<DataTableProps> = ({
         </TableBody>
       </Table>
     </TableContainer>
+
     <TablePagination
       rowsPerPageOptions={[5, 10, 25]}
       component="div"

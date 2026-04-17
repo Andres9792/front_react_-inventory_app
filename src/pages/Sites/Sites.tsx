@@ -1,27 +1,30 @@
-
-import { Box, Typography } from "@mui/material";
+import {
+  Box,
+  Typography,
+  IconButton,
+  Tooltip,
+  CircularProgress,
+} from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 import { useSites } from "../../hooks/useSites";
 import "../../mui-data-grid-fix.css";
 
 export default function Sites() {
-  const { sites, loading, error } = useSites();
+  const { sites, loading, syncing, error, sync } = useSites();
 
   const columns = [
     { field: "id", headerName: "ID", flex: 0.5 },
     { field: "analytics_ip", headerName: "Analytics IP", flex: 1 },
     { field: "company_name", headerName: "Empresa", flex: 1 },
+    { field: "site_name", headerName: "Sitio", flex: 1 },
     { field: "version", headerName: "Versión", flex: 1 },
     { field: "proxmox_ip", headerName: "Proxmox IP", flex: 1 },
     { field: "country", headerName: "País", flex: 1 },
     { field: "rml_licence", headerName: "Licencia RML", flex: 1 },
     { field: "licence_stat", headerName: "Estado Licencia", flex: 1 },
   ];
-
-  if (loading) return <p>Cargando sitios...</p>;
-  if (error) return <p>Error: {error}</p>;
 
   return (
     <Box
@@ -31,7 +34,7 @@ export default function Sites() {
         alignItems: "center",
         mt: 2,
         width: "100%",
-        bgcolor: "#f5f6f8", // 🔹 gris muy claro de fondo general
+        bgcolor: "#f5f6f8",
         minHeight: "100vh",
       }}
     >
@@ -42,26 +45,50 @@ export default function Sites() {
           width: "95%",
           bgcolor: "white",
           borderRadius: 2,
-          boxShadow: "0px 2px 8px rgba(0,0,0,0.1)", // 🔹 sombra suave
+          boxShadow: "0px 2px 8px rgba(0,0,0,0.1)",
           p: 2,
-          mb: 4, // 🔹 espacio al final
+          mb: 4,
         }}
       >
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Lista de Sitios Customer List
-        </Typography>
+        {/* 🔹 HEADER con botón de sincronización */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            mb: 1,
+          }}
+        >
+          <Typography variant="h6">Lista de Sitios Customer List</Typography>
+
+          <Tooltip title="Sincronizar desde Confluence">
+            <span>
+              <IconButton onClick={sync} disabled={syncing}>
+                {syncing ? <CircularProgress size={22} /> : <RefreshIcon />}
+              </IconButton>
+            </span>
+          </Tooltip>
+        </Box>
+
+        {/* 🔹 Error visible */}
+        {error && (
+          <Typography color="error" sx={{ mb: 1 }}>
+            {error}
+          </Typography>
+        )}
 
         <Box sx={{ flexGrow: 1 }}>
           <DataGrid
             rows={sites}
             columns={columns}
+            loading={loading}
             pageSizeOptions={[15, 25, 50, 100]}
             initialState={{
-            pagination: { paginationModel: { pageSize: 25 } },
+              pagination: { paginationModel: { pageSize: 25 } },
             }}
             disableRowSelectionOnClick
             checkboxSelection
-            slots={{ toolbar: GridToolbar }} // 🔍 añade búsqueda y filtros
+            slots={{ toolbar: GridToolbar }}
             slotProps={{
               toolbar: {
                 showQuickFilter: true,
