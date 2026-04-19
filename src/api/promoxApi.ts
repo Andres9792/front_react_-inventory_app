@@ -1,68 +1,66 @@
 import axios from "axios";
-import { config } from "../config/config";
-import type {Proxmox} from "../models/proxmox"
+import type { Proxmox } from "../models/proxmox";
+import httpClient from "./interceptor/httpClient";
 
-
-export const getProxmoxSites = async (): Promise<Proxmox[]> =>{
-try {
-    const response = await axios.get(`${config.API_URL_BASE}/proxmox/`);
-    
-    return response.data;
-} catch (error) {
-    console.log("error api",error)
-}
-
- return []
-}
-
-
-export const updateProxmoxApi = async (id: number, data: any) => {
+export const getProxmoxSites = async (): Promise<Proxmox[]> => {
   try {
-    const response = await fetch(`${config.API_URL_BASE}/proxmox/update/${id}/`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+    const response = await httpClient.get<Proxmox[]>("/proxmox/");
 
-    if (!response.ok) {
-      throw new Error(`Error al actualizar (HTTP ${response.status})`);
-    }
-
-    const result = await response.json();
-
-    return result;
+    return response.data;
   } catch (error) {
-    console.error("Error en updateProxmox:", error);
-    throw error;
+    console.log("error api", error);
+  }
+
+  return [];
+};
+
+export const updateProxmoxApi = async (
+  id: number,
+  data: Partial<Proxmox>
+): Promise<Proxmox> => {
+  try {
+    const response = await httpClient.patch<Proxmox>(
+      `/proxmox/update/${id}/`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.detail || "Error al actualizar Proxmox"
+      );
+    }
+    throw new Error("Error inesperado");
   }
 };
 
+type ApiError = { detail?: string };
 
-export const createProxmox = async (data: any) => {
+export const createProxmox = async (data: unknown) => {
   try {
     // 🔹 Realizamos el POST al backend
-    const response = await axios.post(`${config.API_URL_BASE}/proxmox/create/`, data, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await httpClient.post<Proxmox>("/proxmox/create/", data);
+    return response.data;
 
     console.log(" Registro creado correctamente:", response.data);
-    return response.data; // retornas la respuesta al componente que llame esta función
-  } catch (error : any) {
-    // 🔹 Manejo detallado de error
-    if (error.response) {
-      console.error(" Error en el servidor:", error.response.data);
-      throw new Error(error.response.data.detail || "Error en el servidor al crear Proxmox");
-    } else if (error.request) {
-      console.error(" Sin respuesta del servidor:", error.request);
-      throw new Error("No hubo respuesta del servidor.");
-    } else {
-      console.error(" Error en la solicitud:", error.message);
-      throw new Error("Error en la solicitud al crear Proxmox.");
+
+    return response.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      const serverDetail = (error.response?.data as ApiError | undefined)
+        ?.detail;
+
+      const status = error.response?.status;
+
+      if (status === 400) throw new Error(serverDetail || "Datos inválidos");
+      if (status === 401) throw new Error("No autorizado");
+      if (status && status >= 500) throw new Error("Error del servidor");
+
+      if (error.request) throw new Error("No hubo respuesta del servidor.");
+
+      throw new Error(serverDetail || "Error al crear Proxmox");
     }
+
+    throw new Error("Error inesperado");
   }
 };
-

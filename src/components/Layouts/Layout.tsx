@@ -7,7 +7,7 @@ const Layout = () => {
   const drawerWidth = 240;
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", width: "100%" }}>
       {/* Navbar */}
       <Navbar drawerWidth={drawerWidth} />
 
@@ -19,9 +19,12 @@ const Layout = () => {
         component="main"
         sx={{
           flexGrow: 1,
+          minWidth: 0,        
+          width: "100%",      
+          overflow: "hidden", 
           bgcolor: "#f4f6f8",
           p: 3,
-          mt: 8, // margen superior para que no se tape con el navbar
+          mt: 8, 
         }}
       >
         <Outlet />

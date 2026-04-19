@@ -118,7 +118,9 @@ export default function Ubicacion() {
                       <strong>{site.company_name}</strong> <br />
                       País: {site.country} <br />
                       Versión: {site.version} <br />
-                      Dispositivo: {device.dns}
+                      Zonas: {device.zones} <br />
+                      SF200: {device.sf200} <br />
+                      SD100: {device.feeder} <br />
                     </Popup>
                   </Marker>
                 ))

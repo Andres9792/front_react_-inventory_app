@@ -1,49 +1,65 @@
-import { useState ,useEffect} from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Site, SiteFull } from "../models/siteModels";
-import { getFullSites, getSites } from "../api/siteApi";
+import {
+  getFullSites,
+  getSites,
+  refreshSites, // 👈 IMPORTAMOS EL ENDPOINT
+} from "../api/siteApi";
 
 export function useSites() {
   const [sites, setSites] = useState<Site[]>([]);
   const [fullSites, setFullSites] = useState<SiteFull[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [syncing, setSyncing] = useState<boolean>(false); // 👈 para el botón
   const [error, setError] = useState<string | null>(null);
 
-  const fetchSites = async () => {
-    
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
     try {
-      const data = await getSites();
-      
-      setSites(data);
-    } catch (error: any) {
-      setError(error);
+      const [sitesData, fullSitesData] = await Promise.all([
+        getSites(),
+        getFullSites(),
+      ]);
+
+      setSites(sitesData);
+      setFullSites(fullSitesData);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Error desconocido");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-const fetchSitesFull = async () =>{
-  try {
-    const fullData =  await getFullSites();
-    setFullSites(fullData);
-  } catch ( error : any) {
-      setError(error);
+ 
+  const sync = useCallback(async () => {
+    setSyncing(true);
+    setError(null);
+
+    try {
+      await refreshSites();
+      await load();       
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Error al sincronizar");
     } finally {
-      setLoading(false);
+      setSyncing(false);
     }
+  }, [load]);
+
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+
+  return {
+    sites,
+    fullSites,
+    loading,
+    syncing, 
+    error,
+    refresh: load, 
+    sync,           
   };
-
-
-  
-  useEffect(() => {
-    fetchSitesFull();
-  }, []);
-
-  
-  
-  useEffect(() => {
-    fetchSites();
-  }, []);
-
-  return { sites, fullSites,loading, error };
 }
-
