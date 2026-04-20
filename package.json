@@ -24,7 +24,7 @@
     "react-dom": "^19.1.1",
     "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.9.3",
-    "recharts": "^3.6.0",
+    "recharts": "^3.8.1",
     "rsuite": "^5.83.3"
   },
   "devDependencies": {
