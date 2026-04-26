@@ -1,0 +1,22 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Caja principal -->
+  <rect x="14" y="10" width="36" height="42" rx="6"
+        fill="#f8f9fa" stroke="#2b8cc4" stroke-width="2"/>
+
+  <!-- 
+  <rect x="44" y="10" width="6" height="42" rx="2"
+        fill="#dfe6ec"/>-->
+
+  <!-- Logo -->
+  <text x="32" y="26" font-size="6" text-anchor="middle"
+        fill="#2b8cc4" font-family="Arial">
+    AQ1
+  </text>
+
+  <!-- LEDs -->
+  <circle cx="24" cy="34" r="2" fill="#2b8cc4"/>
+  <circle cx="32" cy="34" r="2" fill="#2b8cc4"/>
+  <circle cx="40" cy="34" r="2" fill="#2b8cc4"/>
+
+</svg>
