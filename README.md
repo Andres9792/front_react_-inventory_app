@@ -72,3 +72,4 @@ export default defineConfig([
 ])
 ```
 # front_react_-inventory_app
+npm run dev -- --host
