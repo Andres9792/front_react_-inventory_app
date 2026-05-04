@@ -42,3 +42,12 @@ export interface SiteData {
   version: string;
   country: string;
 }
+
+export interface SiteAudit {
+  site_name: string;
+  company: string;
+  sf200: number;
+  sm1: number;
+  feeders: number;
+  status: "Operativos" | "Sin Base";
+}

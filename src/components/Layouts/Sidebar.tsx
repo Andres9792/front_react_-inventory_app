@@ -30,6 +30,7 @@ const Sidebar = ({ drawerWidth }: SidebarProps) => {
     { text: "Proxmox", path: "/proxmoxs", icon: <StorageIcon fontSize="small" /> },
     { text: "Ubicaciones", path: "/ubicaciones", icon: <PlaceIcon fontSize="small" /> },
     { text: "Feeders", path: "/feeders", icon: <SettingsInputComponentIcon fontSize="small" /> },
+    { text: "Devices Board", path: "/devices_smone", icon: <DashboardIcon fontSize="small" /> },
   ];
 
   return (

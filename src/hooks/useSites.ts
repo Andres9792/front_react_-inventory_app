@@ -10,7 +10,7 @@ export function useSites() {
   const [sites, setSites] = useState<Site[]>([]);
   const [fullSites, setFullSites] = useState<SiteFull[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [syncing, setSyncing] = useState<boolean>(false); // 👈 para el botón
+  const [syncing, setSyncing] = useState<boolean>(false); 
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {

@@ -6,8 +6,7 @@ import {
   Paper, 
   Divider, 
   Avatar, 
-  Stack,
-  Chip
+  Stack
 } from "@mui/material";
 import {
   MapContainer,
@@ -47,31 +46,26 @@ const icons = {
     iconAnchor: [17, 17],
     popupAnchor: [0, -15],
   }),
-  default: L.icon({
-    iconUrl: "/assets/icons/icon_shrimp.svg",
-    iconSize: [28, 28],
-    iconAnchor: [14, 28],
-  }),
 };
 
 // --- Utilidades ---
+const isValidCoordinate = (lat: any, lng: any) => {
+  const pLat = parseFloat(lat), pLng = parseFloat(lng);
+  return !isNaN(pLat) && !isNaN(pLng) && pLat !== 0 && pLng !== 0;
+};
+
 const calculateDistance = (lat1: string, lon1: string, lat2: string, lon2: string) => {
   const p1 = parseFloat(lat1), l1 = parseFloat(lon1);
   const p2 = parseFloat(lat2), l2 = parseFloat(lon2);
   if ([p1, l1, p2, l2].some(isNaN)) return "N/A";
 
-  const R = 6371e3; // Radio de la Tierra en metros
+  const R = 6371e3; 
   const dLat = ((p2 - p1) * Math.PI) / 180;
   const dLon = ((l2 - l1) * Math.PI) / 180;
   const a = Math.sin(dLat / 2) ** 2 + Math.cos(p1 * Math.PI / 180) * Math.cos(p2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const d = R * c;
   return d > 1000 ? `${(d / 1000).toFixed(2)} km` : `${d.toFixed(2)} m`;
-};
-
-const isValidCoordinate = (lat: any, lng: any) => {
-  const pLat = parseFloat(lat), pLng = parseFloat(lng);
-  return !isNaN(pLat) && !isNaN(pLng) && pLat !== 0 && pLng !== 0;
 };
 
 const createShrimpIcon = (color: string = "#DB705C") => {
@@ -86,7 +80,6 @@ const createShrimpIcon = (color: string = "#DB705C") => {
       </svg>`,
     iconSize: [30, 30],
     iconAnchor: [15, 30],
-    popupAnchor: [0, -28],
   });
 };
 
@@ -100,27 +93,36 @@ export default function Ubicacion() {
     selectedSites.length ? selectedSites : fullSites
   , [selectedSites, fullSites]);
 
-  if (loading) return <Box p={4}><Typography>Cargando mapa de activos...</Typography></Box>;
+  if (loading) return <Box p={4}><Typography>Cargando mapa...</Typography></Box>;
   if (error) return <Box p={4}><Typography color="error">Error: {error}</Typography></Box>;
 
   const handleFocusSite = (site: any) => {
     if (!mapRef.current) return;
-    const target = site.devices?.find((d: any) => d.latitude && d.longitude) || 
-                   site.inventory?.find((i: any) => i.latitude && i.longitude);
+    const target = site.devices?.find((d: any) => isValidCoordinate(d.latitude, d.longitude)) || 
+                   site.inventory?.find((i: any) => isValidCoordinate(i.latitude, i.longitude));
     if (target) {
       mapRef.current.flyTo([parseFloat(target.latitude), parseFloat(target.longitude)], 17, { duration: 1.5 });
     }
   };
 
+  // 🔥 Función para apuntar específicamente a un equipo del inventario
+  const handleFocusDevice = (device: any) => {
+    if (!mapRef.current || !isValidCoordinate(device.latitude, device.longitude)) return;
+    mapRef.current.flyTo(
+      [parseFloat(device.latitude), parseFloat(device.longitude)], 
+      19, 
+      { duration: 1.5 }
+    );
+  };
+
   return (
     <Box sx={{ display: "flex", justifyContent: "center", mt: 2, width: "100%", bgcolor: "#f8fafc", minHeight: "100vh", pb: 4 }}>
-      <Paper elevation={0} sx={{ width: "96%", borderRadius: 4, p: { xs: 2, md: 3 }, bgcolor: "#fff", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}>
+      <Paper elevation={0} sx={{ width: "96%", borderRadius: 4, p: { xs: 2, md: 3 }, bgcolor: "#fff", border: "1px solid #e2e8f0" }}>
         
-        {/* Header */}
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
           <Box>
-            <Typography variant="h5" sx={{ fontWeight: 700, color: "#1e293b", letterSpacing: "-0.5px" }}>
-              Localización de Dispostivos
+            <Typography variant="h5" sx={{ fontWeight: 700, color: "#1e293b" }}>
+              Localización de Dispositivos
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Monitoreo de dispositivos en tiempo real
@@ -138,9 +140,10 @@ export default function Ubicacion() {
           selectedSites={selectedSites}
           onSelect={setSelectedSites}
           onFocusSite={handleFocusSite}
+          onFocusDevice={handleFocusDevice}
         />
 
-        <Box sx={{ height: "75vh", width: "100%", borderRadius: 4, overflow: "hidden", border: "1px solid #e2e8f0", position: 'relative' }}>
+        <Box sx={{ height: "75vh", width: "100%", borderRadius: 4, overflow: "hidden", border: "1px solid #e2e8f0" }}>
           <MapContainer
             center={[-2.2706, -79.7382]}
             zoom={13}
@@ -149,20 +152,15 @@ export default function Ubicacion() {
             ref={mapRef}
           >
             <ZoomControl position="bottomright" />
-
             <LayersControl position="topright">
               <BaseLayer checked name="Light">
                 <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
-              </BaseLayer>
-              <BaseLayer name="Dark">
-                <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
               </BaseLayer>
               <BaseLayer name="Satélite">
                 <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
               </BaseLayer>
             </LayersControl>
 
-            {/* Marcadores de Camarón con Clustering */}
             <MarkerClusterGroup chunkedLoading maxClusterRadius={40}>
               {visibleSites.map((site: any) =>
                 site.devices
@@ -174,19 +172,14 @@ export default function Ubicacion() {
                       icon={createShrimpIcon(site.color)}
                     >
                       <Popup>
-                        <Box sx={{ p: 0.5 }}>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{site.site_name}</Typography>
-                          <Typography variant="caption" sx={{ color: site.color, fontWeight: 700 }}>{site.company_name}</Typography>
-                          <Divider sx={{ my: 1 }} />
-                          <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>ID: {device.id}</Typography>
-                        </Box>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{site.site_name}</Typography>
+                        <Typography variant="caption" sx={{ color: site.color, fontWeight: 700 }}>{site.company_name}</Typography>
                       </Popup>
                     </Marker>
                   ))
               )}
             </MarkerClusterGroup>
 
-            {/* Marcadores de Inventario y Polylines */}
             {visibleSites.map((site: any) => {
               const renderedSF200s = new Set();
               return site.inventory
@@ -195,14 +188,13 @@ export default function Ubicacion() {
                   const deviceCoords: [number, number] = [parseFloat(item.latitude), parseFloat(item.longitude)];
                   const sf200Coords: [number, number] = [parseFloat(item.sf200_latitude), parseFloat(item.sf200_longitude)];
                   const hasSF200 = isValidCoordinate(item.sf200_latitude, item.sf200_longitude);
-                  const isHydrophone = item.device_type === "Hydrophone";
 
                   return (
                     <Fragment key={`inv-${item.id}`}>
                       {hasSF200 && (
                         <Polyline 
                           positions={[sf200Coords, deviceCoords]} 
-                          pathOptions={{ color: isHydrophone ? "#3b82f6" : "#f59e0b", weight: 2, dashArray: "6, 8", opacity: 0.6 }} 
+                          pathOptions={{ color: item.device_type === "Hydrophone" ? "#3b82f6" : "#f59e0b", weight: 2, dashArray: "6, 8", opacity: 0.6 }} 
                         />
                       )}
 
@@ -222,25 +214,20 @@ export default function Ubicacion() {
                         icon={item.device_type === "Hydrophone" ? icons.hydrophone : icons.sd100}
                       >
                         <Popup>
-                          <Box sx={{ minWidth: 220, p: 1 }}>
+                          <Box sx={{ minWidth: 200, p: 1 }}>
                             <Stack direction="row" spacing={1} alignItems="center" mb={1}>
                               <Avatar sx={{ width: 24, height: 24, bgcolor: site.color, fontSize: 10 }}>
                                 {item.device_type?.charAt(0)}
                               </Avatar>
                               <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{item.device_name}</Typography>
                             </Stack>
-                            
                             <Divider sx={{ mb: 1 }} />
-                            
-                            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
-                              <Typography variant="caption"><b>Tipo:</b> {item.device_type}</Typography>
-                              <Typography variant="caption"><b>Modelo:</b> {item.model}</Typography>
-                            </Box>
-
+                            <Typography variant="caption" display="block"><b>Tipo:</b> {item.device_type}</Typography>
+                            <Typography variant="caption" display="block"><b>Modelo:</b> {item.model}</Typography>
                             <Typography variant="caption" display="block" sx={{ mt: 1, color: 'primary.main', fontWeight: 600 }}>
                               Distancia: {calculateDistance(item.latitude, item.longitude, item.sf200_latitude, item.sf200_longitude)}
                             </Typography>
-                          </Box> {/* Box de cierre que faltaba corregido */}
+                          </Box>
                         </Popup>
                       </Marker>
                     </Fragment>

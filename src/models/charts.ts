@@ -1,3 +1,5 @@
+// src/models/charts.ts
+
 export interface Totals {
   total_sites: number;
   total_devices: number;
@@ -20,9 +22,18 @@ export interface Company {
   devices: number;
   total_zones: number;
   total_sf200: number;
-
   total_enviro: number;
   total_wire_feeders: number;
+}
+
+// Interfaz para la tabla de auditoría que definimos antes
+export interface SiteAudit {
+  site_name: string;
+  company: string;
+  sf200: number;
+  sm1: number;
+  feeders: number;
+  status: "Operativos" | "Sin Base";
 }
 
 export interface DashboardData {
@@ -34,5 +45,6 @@ export interface DashboardData {
   };
   tables: {
     top_companies_ecuador: Company[];
+    sites_audit: SiteAudit[]; // 👈 AGREGAMOS ESTA LÍNEA
   };
 }
