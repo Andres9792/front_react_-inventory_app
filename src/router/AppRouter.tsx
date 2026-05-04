@@ -7,6 +7,7 @@ import Proxmox from "../pages/Proxmox/Proxmox";
 import  Login from "../pages/auth/Login"; // 👈 tu página de login
 import PrivateRoute from "./PrivateRoute"; // 👈 la protección
 import { AuthProvider } from "../context/AuthContext"; // 👈 el contexto
+import { SiteDevicesTable } from "../pages/SiteDevicesTable/SiteDevicesTable";
 
 function AppRouter() {
   return (
@@ -31,6 +32,7 @@ function AppRouter() {
             <Route path="proxmoxs" element={<Proxmox />} />
             <Route path="ubicaciones" element={<Ubicacion />} />
             <Route path="feeders" element={<Feeders />} />
+            <Route path="devices_smone" element={<SiteDevicesTable />} />
           </Route>
         </Routes>
       </Router>

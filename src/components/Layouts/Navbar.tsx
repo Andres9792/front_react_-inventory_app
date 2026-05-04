@@ -1,6 +1,7 @@
 import { AppBar, Toolbar, Typography, Button, Box } from "../../libs/mui";
 import { useAuth } from "../../hooks/useAuth";
 import LogoutIcon from "@mui/icons-material/Logout";
+import Avatar from "@mui/material/Avatar";
 
 interface NavbarProps {
   drawerWidth: number;
@@ -15,16 +16,26 @@ const Navbar = ({ drawerWidth }: NavbarProps) => {
       sx={{
         width: `calc(100% - ${drawerWidth}px)`,
         ml: `${drawerWidth}px`,
-        backgroundColor: "#1976d2",
-        boxShadow: "0px 2px 4px rgba(0,0,0,0.2)",
+        // Fondo blanco con ligera transparencia (efecto glassmorphism)
+        backgroundColor: "rgba(255, 255, 255, 0.8)", 
+        backdropFilter: "blur(8px)", 
+        // Cambiamos la sombra pesada por una línea muy fina
+        boxShadow: "none",
+        borderBottom: "1px solid #f0f0f0",
+        color: "#1A2027", // Texto oscuro para que resalte en el blanco
       }}
     >
-      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-        {/* Título con logo opcional */}
+      <Toolbar sx={{ display: "flex", justifyContent: "space-between", minHeight: 64 }}>
+        
+        {/* Título más sutil */}
         <Typography
-          variant="h6"
+          variant="subtitle1"
           noWrap
-          sx={{ fontWeight: 600, letterSpacing: 0.5 }}
+          sx={{ 
+            fontWeight: 700, 
+            color: "#2D3748",
+            fontSize: "1.1rem" 
+          }}
         >
           Inventory Dashboard
         </Typography>
@@ -32,25 +43,44 @@ const Navbar = ({ drawerWidth }: NavbarProps) => {
         {/* Sección derecha */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           {user && (
-            <Typography
-              variant="body2"
-              sx={{ color: "white", fontWeight: 500 }}
-            >
-              {user.username}
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <Typography
+                variant="body2"
+                sx={{ 
+                  color: "#637381", 
+                  fontWeight: 600,
+                  display: { xs: 'none', sm: 'block' } // Ocultar en pantallas muy pequeñas
+                }}
+              >
+                {user.username}
+              </Typography>
+              {/* Avatar opcional para darle el toque Pro */}
+              <Avatar 
+                sx={{ 
+                  width: 32, 
+                  height: 32, 
+                  bgcolor: "#007FFF", 
+                  fontSize: "0.875rem",
+                  fontWeight: 'bold' 
+                }}
+              >
+                {user.username?.charAt(0).toUpperCase()}
+              </Avatar>
+            </Box>
           )}
+
           <Button
-            color="inherit"
-            startIcon={<LogoutIcon />}
             onClick={logout}
+            startIcon={<LogoutIcon sx={{ fontSize: 18 }} />}
             sx={{
-              border: "1px solid white",
-              borderRadius: "10px",
-              px: 2,
-              py: 0.5,
               textTransform: "none",
-              color: "white",
-              "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
+              color: "#FF4842", // Color rojo suave para 'Salir'
+              fontWeight: 600,
+              borderRadius: "8px",
+              px: 2,
+              '&:hover': { 
+                backgroundColor: "rgba(255, 72, 66, 0.08)",
+              },
             }}
           >
             Salir
